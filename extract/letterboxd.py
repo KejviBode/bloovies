@@ -28,20 +28,18 @@ def load_top_letterboxd_soup(page_num: int,
 
 def extract_top_letterboxd_films(film_soup: BeautifulSoup) -> list[dict]:
     try:
-        films = film_soup.find_all('li', 
+        film_list = film_soup.find("ul", 
+                                   {"class": "js-list-entries poster-list -p125 -grid film-list"})
+        films = film_list.find_all('li', 
                                    {"class": "poster-container numbered-list-item"})
         clean_films = []
-        for film in films[:10]:
+        for film in films:            
             film_info = {}
-            # print(film)
-            
-            # print(film.find_all("img")[0].get('alt'))
-            # print(film.find_all("div")[0].get('data-film-name'))
-            # print(film.find("span", {"class": "frame-title"}))
             film_info["film_name"] = film.find_all("img")[0].get('alt')
             film_info["film_rank"] = int(film.find("p", {"class" : "list-number"}).contents[0])
+            film_info["letterboxd_link"] = "https://letterboxd.com" + film.find("div").get("data-target-link")
             clean_films.append(film_info)
-        print(clean_films)
+        return clean_films
     except:
         print("Whoops")
         return None
