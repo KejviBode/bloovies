@@ -8,12 +8,13 @@ from bs4 import BeautifulSoup
 TOP_CHARTS_LETTERBOXD_URL = "https://letterboxd.com/dave/list/official-top-250-narrative-feature-films/page/"
 
 
-def load_top_letterboxd_soup(page_num: int, letterboxd_url: str = TOP_CHARTS_LETTERBOXD_URL) -> BeautifulSoup:
+def load_top_letterboxd_soup(page_num: int,
+                             letterboxd_url: str = TOP_CHARTS_LETTERBOXD_URL) -> BeautifulSoup:
     '''
     Load BeautifulSoup from Letterboxd top 250 reviewed films of all time
     '''
     try:
-        req = Request(url=f'{letterboxd_url}{page_num}', 
+        req = Request(url=f'{letterboxd_url}{page_num}',
                       headers={'User-Agent': 'Mozilla/5.0'})
         with urlopen(req) as page:
             html_bytes = page.read()
@@ -25,8 +26,31 @@ def load_top_letterboxd_soup(page_num: int, letterboxd_url: str = TOP_CHARTS_LET
                 "code" : err.code,
                 "message" : err}
 
+def extract_top_letterboxd_films(film_soup: BeautifulSoup) -> list[dict]:
+    try:
+        films = film_soup.find_all('li', 
+                                   {"class": "poster-container numbered-list-item"})
+        clean_films = []
+        for film in films[:10]:
+            film_info = {}
+            # print(film)
+            
+            # print(film.find_all("img")[0].get('alt'))
+            # print(film.find_all("div")[0].get('data-film-name'))
+            # print(film.find("span", {"class": "frame-title"}))
+            film_info["film_name"] = film.find_all("img")[0].get('alt')
+            film_info["film_rank"] = int(film.find("p", {"class" : "list-number"}).contents[0])
+            clean_films.append(film_info)
+        print(clean_films)
+    except:
+        print("Whoops")
+        return None
+
 
 
 if __name__ == "__main__":
     main_soup = load_top_letterboxd_soup(1)
-    print(main_soup)
+    extract_top_letterboxd_films(main_soup)
+    # with open("letterboxd_html_test.html", "w") as file:
+    #     file.write(str(main_soup))
+    # print(main_soup.find('ul', {"class": "js-list-entries poster-list -p125 -grid film-list"}))
