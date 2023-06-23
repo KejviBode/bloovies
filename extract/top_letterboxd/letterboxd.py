@@ -1,37 +1,17 @@
 '''
-This python script will scrape from letterboxd
+This python script will scrape from letterboxd the top 250 films
 '''
 from urllib.request import urlopen, Request
 from urllib.error import HTTPError
 from bs4 import BeautifulSoup
 from datetime import datetime
 
+from extract_functions import load_letterboxd_soup
+
 TOP_CHARTS_LETTERBOXD_URL = "https://letterboxd.com/dave/list/official-top-250-narrative-feature-films/page/"
 BASE_LETTERBOXD_URL = "https://letterboxd.com"
 
 
-def load_top_letterboxd_soup(letterboxd_url: str = TOP_CHARTS_LETTERBOXD_URL,
-                             page_num: int = None) -> BeautifulSoup:
-    '''
-    Load BeautifulSoup from Letterboxd top 250 reviewed films of all time
-    '''
-    try:
-        if page_num is None:
-            url = f'{letterboxd_url}'
-        else:
-            url = f'{letterboxd_url}{page_num}'
-        print(f"Retrieving information for: {url}")
-        req = Request(url=url,
-                      headers={'User-Agent': 'Mozilla/5.0'})
-        with urlopen(req) as page:
-            html_bytes = page.read()
-            html = html_bytes.decode("utf-8")
-            soup = BeautifulSoup(html, "html.parser")
-            return soup
-    except HTTPError as err:
-        return {"error" : True,
-                "code" : err.code,
-                "message" : err}
 
 def extract_top_letterboxd_films(film_soup: BeautifulSoup) -> list[dict]:
     '''
@@ -65,7 +45,7 @@ def extract_top_letterboxd_films(film_soup: BeautifulSoup) -> list[dict]:
 
 def extract_film_cast(cast_url: str) -> list:
     try:
-        film_page = load_top_letterboxd_soup(cast_url)
+        film_page = load_letterboxd_soup(cast_url)
         cast = film_page.find( "div", 
                             {"class": "cast-list text-sluglist"}).find_all("a")
         cast_list = []
@@ -80,7 +60,7 @@ def extract_film_cast(cast_url: str) -> list:
 
 def extract_film_crew(crew_url: str) -> dict:
     try:
-        crew_page = load_top_letterboxd_soup(crew_url)
+        crew_page = load_letterboxd_soup(crew_url)
         crew = crew_page.find("div", {"id": "tab-crew"}).find_all("a")
         directors = [director.contents[0] for director in crew if 'director' in director.get("href")]
         writers = [writer.contents[0] for writer in crew if 'writer' in writer.get("href") and "original" not in writer.get("href")]
@@ -92,7 +72,7 @@ def extract_film_crew(crew_url: str) -> dict:
 
 def extract_film_details(details_url: str) -> dict:
     try:
-        details_page = load_top_letterboxd_soup(details_url)
+        details_page = load_letterboxd_soup(details_url)
         details = details_page.find("div", {"id": "tab-details"}).find_all("a")
         studios = [studio.contents[0] for studio in details if "studio" in studio.get("href")]
         country = [country.contents[0] for country in details if "country" in country.get("href")][0]
@@ -106,7 +86,7 @@ def extract_film_details(details_url: str) -> dict:
 
 def extract_film_genres(genres_url: str) -> list:
     try:
-        genres_page = load_top_letterboxd_soup(genres_url)
+        genres_page = load_letterboxd_soup(genres_url)
         genres = genres_page.find("div", {"id" : "tab-genres"}).find_all("a")
         return [genre.contents[0] for genre in genres if "genre" in genre.get("href")]
     except Exception as err:
@@ -160,12 +140,11 @@ def extract_letterboxd_film_page(film : dict) -> dict:
 def scrape_multiple_pages():
     all_films = []
     for i in range(1,4):
-        letterboxd_soup = load_top_letterboxd_soup(TOP_CHARTS_LETTERBOXD_URL, i)
+        letterboxd_soup = load_letterboxd_soup(TOP_CHARTS_LETTERBOXD_URL, i)
         films = extract_top_letterboxd_films(letterboxd_soup)
         for film in films:
             all_films.append(extract_letterboxd_film_page(film))
     return all_films
-
 
 
 if __name__ == "__main__":

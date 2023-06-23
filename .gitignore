@@ -4,3 +4,7 @@ venv
 .vscode
 __pycache__
 .pytest_cache
+terraform.tfvars
+*tfvars
+.terraform*
+*.egg-info
