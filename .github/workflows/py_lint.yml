@@ -9,7 +9,7 @@ jobs:
     name: test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v33
+      - uses: actions/checkout@v3
       - run: |
           pip install -r requirements.txt
           pytest
@@ -17,7 +17,7 @@ jobs:
     name: linting
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v33
+      - uses: actions/checkout@v3
       - run: |
           pip install -r requirements.txt
           pylint --fail-under=8 *.py
