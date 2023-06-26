@@ -93,6 +93,14 @@ def extract_film_genres(genres_url: str) -> list:
         return err
 
 
+def extract_film_reviews(reviews_url: str) -> list:
+    try:
+        reviews_page = load_letterboxd_soup(reviews_url)
+        print(reviews_page.find("section",{"class":"viewings-list"}))
+        # reviews = reviews_page.find()
+    except:
+        print("Whoops")
+
 def extract_letterboxd_film_page(film : dict) -> dict:
     if "letterboxd_link" not in film.keys():
         film["error"] = "Invalid letterboxd film link"

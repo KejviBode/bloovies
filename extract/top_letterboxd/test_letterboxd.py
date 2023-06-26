@@ -3,7 +3,7 @@ Tests for letterboxd scraping script
 '''
 import pytest
 from letterboxd import extract_top_letterboxd_films
-from fixtures import top_letterboxd_soup
+from conftest import top_letterboxd_soup
 
 
 def test_top_letterboxd_invalid():

@@ -7,36 +7,35 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 
 from extract_functions import load_letterboxd_soup
+from top_letterboxd.letterboxd import extract_letterboxd_film_page, extract_film_reviews
 
-
-WEEKLY_LETTERBOXD_URL = "https://letterboxd.com/films/popular/this/week/year/2023/"
+TOP_50_WEEKLY_URL = ""
+WEEKLY_LETTERBOXD_URL = "https://letterboxd.com/films/ajax/popular/this/week/year/2023/page/1/"
 BASE_LETTERBOXD_URL = "https://letterboxd.com"
 
-
-# def load_top_letterboxd_soup(letterboxd_url: str = WEEKLY_LETTERBOXD_URL,
-#                              page_num: int = None) -> BeautifulSoup:
-#     '''
-#     Load BeautifulSoup from specified letterboxd url
-#     '''
-#     try:
-#         if page_num is None:
-#             url = f'{letterboxd_url}'
-#         else:
-#             url = f'{letterboxd_url}{page_num}'
-#         print(f"Retrieving information for: {url}")
-#         req = Request(url=url,
-#                       headers={'User-Agent': 'Mozilla/5.0'})
-#         with urlopen(req) as page:
-#             html_bytes = page.read()
-#             html = html_bytes.decode("utf-8")
-#             soup = BeautifulSoup(html, "html.parser")
-#             return soup
-#     except HTTPError as err:
-#         return {"error": True,
-#                 "code": err.code,
-#                 "message": err}
+def extract_weekly_films(letterboxd_soup: BeautifulSoup) -> list:
+    film_ul = letterboxd_soup.find("ul",
+                                {"class": "poster-list -p70 -grid"})
+    films = film_ul.find_all("li", 
+                             {"class": "listitem poster-container"})
+    clean_films = []
+    for film in films[:1]:
+        clean_film = {}
+        clean_film["film_name"] = film.find("img").get("alt")
+        clean_film["letterboxd_link"] = BASE_LETTERBOXD_URL + film.find("div").get("data-film-slug")
+        clean_films.append(clean_film)
+        # print(film)
+    print(clean_films)
+    return clean_films
 
 
 if __name__ == "__main__":
     print("Yyyyyello")
     soup = load_letterboxd_soup(WEEKLY_LETTERBOXD_URL)
+    # with open("html_weekly_films_test.html", "w") as page:
+    #     page.write(str(soup))
+    main_films = extract_weekly_films(soup)
+    main_film = extract_letterboxd_film_page(main_films[0])
+    extract_film_reviews(
+        main_film["letterboxd_link"] + "reviews/by/activity/page/1/")
+    # print(main_film)

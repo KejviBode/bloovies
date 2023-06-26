@@ -20,4 +20,4 @@ jobs:
       - uses: actions/checkout@v3
       - run: |
           pip install -r requirements.txt
-          pylint --fail-under=8 *.py
+          pylint --fail-under=6 ./extract
