@@ -14,7 +14,7 @@ jobs:
           pytest
   linting:
     name: linting
-    run-on:ubuntu-latest
+    run-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v33
       - run: |
