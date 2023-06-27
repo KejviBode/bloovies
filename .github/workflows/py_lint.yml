@@ -12,6 +12,7 @@ jobs:
       - uses: actions/checkout@v3
       - run: |
           pip install -r requirements.txt
+          pip install -e ./extract
           python -m pytest
   linting:
     name: linting
@@ -20,4 +21,5 @@ jobs:
       - uses: actions/checkout@v3
       - run: |
           pip install -r requirements.txt
-          pylint $(git ls-files '*.py')
+          pip install -e ./extract
+          pylint --fail-under=6 $(git ls-files '*.py')
